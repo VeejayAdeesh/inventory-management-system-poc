@@ -1,0 +1,42 @@
+{
+	"name": "inventory-management-system-poc",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "tsnd --respawn -r tsconfig-paths/register --pretty --transpile-only ./src/index.ts",
+		"start": "node ./dist",
+		"buid": "tsc && tsc-alias",
+		"postinstall": "prisma generate"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/VeejayAdeesh/inventory-management-system-poc.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "commonjs",
+	"bugs": {
+		"url": "https://github.com/VeejayAdeesh/inventory-management-system-poc/issues"
+	},
+	"homepage": "https://github.com/VeejayAdeesh/inventory-management-system-poc#readme",
+	"devDependencies": {
+		"@types/node": "^25.8.0",
+		"ts-alias": "^0.0.7",
+		"ts-node-dev": "^2.0.0",
+		"tsconfig-paths": "^4.2.0",
+		"typescript": "^6.0.3"
+	},
+	"dependencies": {
+		"@prisma/client": "^7.8.0",
+		"@types/bcrypt": "^6.0.0",
+		"@types/express": "^5.0.6",
+		"bcrypt": "^6.0.0",
+		"cors": "^2.8.6",
+		"dotenv": "^17.4.2",
+		"express": "^5.2.1",
+		"prisma": "^7.8.0"
+	}
+}
