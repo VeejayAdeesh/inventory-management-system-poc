@@ -1,8 +1,7 @@
 import express from "express";
+import customerRouter from "@/routes/customer.js";
 import cors from "cors";
-import consumers = require("node:stream/consumers");
-import type Request = require("express");
-require("dotenv").config();
+import "dotenv/config";
 
 const app = express();
 
@@ -16,11 +15,4 @@ app.listen(port, () => {
 	console.log("App is running in the port ", port);
 });
 
-app.get("/customers", async (req: Request, res: Response) => {
-	const sampleDate = [
-		{
-			test: "te212",
-		},
-	];
-	return res.status(200).json(sampleDate);
-});
+app.use("/api/v1", customerRouter);

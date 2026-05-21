@@ -5,9 +5,19 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../src/generated"
 }
 
 datasource db {
   provider = "mongodb"
+  url = env("DATABASE_URL")
+}
+
+model Customer {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  email String @unique
+  name String
+  phone String
+  createdAt DateTime @default(now())
+  updatedAt DateTime  @updatedAt
 }
