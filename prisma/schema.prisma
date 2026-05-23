@@ -21,3 +21,41 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime  @updatedAt
 }
+
+model User {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  username String @unique
+  password String
+  firstname String
+  lastname String
+  email String @unique
+  phone String @unique
+  dob DateTime?
+  role Role @default(ATTENDANT)
+  gender Gender
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  shops Shop[]
+  image String
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Role {
+  ADMIN
+  ATTENDANT
+}
+
+model Shop {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  location String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  adminId String @db.ObjectId
+  admin User @relation(fields:[adminId], references:[id])
+  attendantIds String @db.ObjectId
+}
