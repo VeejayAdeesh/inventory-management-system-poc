@@ -1,7 +1,26 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db.js";
 import bcrypt from "bcrypt";
-import { error } from "node:console";
+
+const checkExistingUser = async (userId: string) => {
+	try {
+		const existingUser = await db.User.findUnique({
+			where: {
+				id: userId,
+			},
+		});
+		if (!existingUser) {
+			return { userData: null, message: "user data not found" };
+		}
+		return { userData: existingUser, message: null };
+	} catch (e) {
+		console.error("Error in finding existing user exist or not", e.message);
+		return {
+			userData: null,
+			message: "Error in finding existing user exist",
+		};
+	}
+};
 
 export const createUser = async (req: Request, res: Response) => {
 	const {
@@ -115,6 +134,62 @@ export const getUsers = async (req: Request, res: Response) => {
 		return res.status(500).json({
 			error: "Error in getting user details",
 			data: null,
+		});
+	}
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+	const { id } = req.params;
+	try {
+		const { userData } = await checkExistingUser(id);
+		if (userData) {
+			await db.User.delete({
+				where: {
+					id,
+				},
+			});
+			return res.status(200).json({
+				success: true,
+				error: null,
+			});
+		}
+	} catch (e) {
+		console.error("Error in deleteing user", e.message);
+		if (e.message.includes("user data not found")) {
+			return res.status(404).json({ success: false, error: "User not found" });
+		}
+		return res.status(500).json({
+			success: false,
+			error: "Internal server error",
+		});
+	}
+};
+
+export const updateUserPassword = async (req: Request, res: Response) => {
+	const { id } = req.params;
+	const { password } = req.body;
+	try {
+		const { userData } = await checkExistingUser(id);
+		if (userData) {
+			const hashedPassowrd: string = await bcrypt.hash(password, 10);
+			await db.User.update({
+				where: {
+					id,
+				},
+				data: {
+					password: hashedPassowrd,
+				},
+			});
+			return res.status(200).json({ success: true, error: null });
+		}
+	} catch (e) {
+		console.error("Error in updating user password", e.message);
+		if (e.message.includes("user data not found")) {
+			return res.status(404).json({ success: false, error: "User not found" });
+		}
+		return res.status(500).json({
+			success: false,
+			error: "Internal server error",
 		});
 	}
 };
