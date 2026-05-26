@@ -3,6 +3,7 @@ import customerRouter from "@/routes/customer.js";
 import userRouter from "@/routes/user.js";
 import cors from "cors";
 import "dotenv/config";
+import shopRounter from "@/routes/shop.js";
 
 const app = express();
 
@@ -18,3 +19,4 @@ app.listen(port, () => {
 
 app.use("/api/v1", customerRouter);
 app.use("/api/v1", userRouter);
+app.use("/api/v1", shopRounter);
