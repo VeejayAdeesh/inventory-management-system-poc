@@ -8,7 +8,7 @@ import {
 const customerRouter = express.Router();
 
 customerRouter.get("/customers", getCustomers);
-customerRouter.post("/customer", createCustomer);
-customerRouter.get("/customer/:id", getCustomerById);
+customerRouter.post("/customers", createCustomer);
+customerRouter.get("/customers/:id", getCustomerById);
 
 export default customerRouter;

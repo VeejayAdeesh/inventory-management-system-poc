@@ -14,3 +14,33 @@ export const db = globalThis.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") {
 	globalThis.prisma = db;
 }
+
+async function initialiseDatabaseIndexed() {
+	try {
+		await db.$runCommandRaw({
+			dropIndexes: "Supplier",
+			index: "Supplier_email_key",
+		});
+	} catch (e) {
+		console.error("Index not found. Countuning to create new index", e);
+	}
+	try {
+		await db.$runCommandRaw({
+			createIndexes: "Supplier",
+			indexes: [
+				{
+					key: { email: 1 },
+					name: "Supplier_email_key",
+					unique: true,
+					partialFilterExpression: {
+						email: { $exists: true, $type: "string" },
+					},
+				},
+			],
+		});
+	} catch (e) {
+		console.error("Error in creating supplier index", e);
+	}
+}
+
+initialiseDatabaseIndexed();

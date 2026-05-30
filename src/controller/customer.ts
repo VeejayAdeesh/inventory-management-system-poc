@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db.js";
+import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export const getCustomers = async (req: Request, res: Response) => {
 	try {
@@ -94,8 +96,8 @@ export const createCustomer = async (req: Request, res: Response) => {
 
 export const getCustomerById = async (req: Request, res: Response) => {
 	try {
-		const { id } = req.params;
-		const result = await db.customer.findMany({
+		const id = req.params.id as string;
+		const result = await db.customer.findUnique({
 			where: {
 				id,
 			},

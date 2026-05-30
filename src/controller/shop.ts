@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db.js";
+import { error } from "node:console";
 
-const getShopDetailsByShopId = async (shopId: String) => {
+const getShopDetailsByShopId = async (shopId: string) => {
 	try {
-		const shopData = await db.Shop.findUnique({
+		const shopData = await db.shop.findUnique({
 			where: {
 				id: shopId,
 			},
@@ -24,7 +25,7 @@ const getShopDetailsByShopId = async (shopId: String) => {
 export const createShops = async (req: Request, res: Response) => {
 	try {
 		const { name, slug, location, adminId, attendantIds } = req.body;
-		const result = await db.Shop.create({
+		const result = await db.shop.create({
 			data: {
 				name,
 				slug,
@@ -39,6 +40,7 @@ export const createShops = async (req: Request, res: Response) => {
 		});
 	} catch (e) {
 		if (e instanceof Error) {
+			console.error("Error in creating shop ", e.message);
 			if (
 				e.message.includes(
 					"Unique constraint failed on the constraint: `Shop_slug_key`",
@@ -52,13 +54,14 @@ export const createShops = async (req: Request, res: Response) => {
 				.status(500)
 				.json({ data: null, error: e.message || "Internal Server error." });
 		}
+		console.error("Unknown error ", e);
 		return res.status(500).json({ data: null, error: "Unknown erro" });
 	}
 };
 
 export const getShops = async (req: Request, res: Response) => {
 	try {
-		const result = await db.Shop.findMany({
+		const result = await db.shop.findMany({
 			orderBy: {
 				createdAt: "desc",
 			},
@@ -71,6 +74,7 @@ export const getShops = async (req: Request, res: Response) => {
 				.status(500)
 				.json({ data: null, error: e.message || "Internal server error" });
 		}
+		console.error("Unknown error ", e);
 		return res.status(500).json({ data: null, error: "Unknown error" });
 	}
 };
@@ -78,8 +82,12 @@ export const getShops = async (req: Request, res: Response) => {
 export const getAttendantsByShop = async (req: Request, res: Response) => {
 	const { id } = req.params;
 	try {
-		const { shopData } = await getShopDetailsByShopId(id);
-		const shopAttendants = await db.User.findMany({
+		const { shopData } = await getShopDetailsByShopId(id as string);
+		if (!shopData) {
+			console.error(`Shop ${id} not found`);
+			return res.status(404).send({ data: null, error: "Shop data not found" });
+		}
+		const shopAttendants = await db.user.findMany({
 			where: {
 				id: {
 					in: shopData.attendantIds,
@@ -108,6 +116,7 @@ export const getAttendantsByShop = async (req: Request, res: Response) => {
 				.status(500)
 				.json({ data: null, error: e.message || "Internal Server error" });
 		}
+		console.error("Unknown error ", e);
 		return res.status(500).json({ data: null, error: "Unknown error" });
 	}
 };
@@ -115,7 +124,7 @@ export const getAttendantsByShop = async (req: Request, res: Response) => {
 export const getShopsById = async (req: Request, res: Response) => {
 	const { id } = req.params;
 	try {
-		const { shopData } = await getShopDetailsByShopId(id as String);
+		const { shopData } = await getShopDetailsByShopId(id as string);
 		return res.status(200).json({ data: shopData, error: null });
 	} catch (e) {
 		if (e instanceof Error) {
@@ -129,6 +138,7 @@ export const getShopsById = async (req: Request, res: Response) => {
 				.status(500)
 				.json({ data: null, error: e.message || "Internal Server error" });
 		}
+		console.error("Unknown error ", e);
 		return res.status(500).json({ data: null, error: "Unknown error" });
 	}
 };

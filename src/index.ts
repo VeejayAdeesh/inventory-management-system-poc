@@ -4,6 +4,8 @@ import userRouter from "@/routes/user.js";
 import cors from "cors";
 import "dotenv/config";
 import shopRounter from "@/routes/shop.js";
+import supplierRounter from "./routes/supplier.js";
+import loginRouter from "./routes/login.js";
 
 const app = express();
 
@@ -20,3 +22,5 @@ app.listen(port, () => {
 app.use("/api/v1", customerRouter);
 app.use("/api/v1", userRouter);
 app.use("/api/v1", shopRounter);
+app.use("/api/v1", supplierRounter);
+app.use("/api/v1", loginRouter);

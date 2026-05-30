@@ -24,10 +24,10 @@ model Customer {
   maxCreditDays Int
   country String
   location String
+  NIN String @unique
   taxPin String?
   dob DateTime?
   email String? @unique
-  NIN String? @unique
   createdAt DateTime @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -86,10 +86,10 @@ model Supplier {
   phone String @unique
   location String
   country String
-  email String? @unique
+  registrationNumber String @unique
+  email String?
   website String?
   taxPin String?
-  registrationNumber String? @unique
   bankAccountNumber String?
   bankName String?
   paymentTerms String?
@@ -102,7 +102,7 @@ model Supplier {
 
 enum SupplierType {
   MANUFACTURER
-  DISTRUBUTOR
+  DISTRIBUTOR
   WHOLESALER
   RETAILER
   OTHER

@@ -5,7 +5,7 @@ import { error } from "node:console";
 
 const checkExistingUser = async (userId: string) => {
 	try {
-		const existingUser = await db.User.findUnique({
+		const existingUser = await db.user.findUnique({
 			where: {
 				id: userId,
 			},
@@ -41,7 +41,7 @@ export const createUser = async (req: Request, res: Response) => {
 	} = req.body;
 	try {
 		const hashedPassowrd: string = await bcrypt.hash(password, 10);
-		const result = await db.User.create({
+		const result = await db.user.create({
 			data: {
 				username,
 				password: hashedPassowrd,
@@ -100,9 +100,9 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const getUserById = async (req: Request, res: Response) => {
-	const { id } = req.params;
+	const id = req.params.id as string;
 	try {
-		const result = await db.User.findUnique({
+		const result = await db.user.findUnique({
 			where: {
 				id,
 			},
@@ -123,7 +123,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const getUsers = async (req: Request, res: Response) => {
 	try {
-		const result = await db.User.findMany({
+		const result = await db.user.findMany({
 			orderBy: {
 				createdAt: "desc",
 			},
@@ -156,7 +156,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 	try {
 		const { userData } = await checkExistingUser(id as string);
 		if (userData) {
-			await db.User.delete({
+			await db.user.delete({
 				where: {
 					id,
 				},
@@ -190,7 +190,7 @@ export const updateUserPassword = async (req: Request, res: Response) => {
 		const { userData } = await checkExistingUser(id);
 		if (userData) {
 			const hashedPassowrd: string = await bcrypt.hash(password, 10);
-			await db.User.update({
+			await db.user.update({
 				where: {
 					id,
 				},
