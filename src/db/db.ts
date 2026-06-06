@@ -21,8 +21,12 @@ async function initialiseDatabaseIndexed() {
 			dropIndexes: "Supplier",
 			index: "Supplier_email_key",
 		});
+		await db.$runCommandRaw({
+			dropIndexes: "Product",
+			index: "Product_barcode_key",
+		});
 	} catch (e) {
-		console.error("Index not found. Countuning to create new index", e);
+		console.error("Index not found. Countuning to create new index", e.message);
 	}
 	try {
 		await db.$runCommandRaw({
@@ -38,8 +42,21 @@ async function initialiseDatabaseIndexed() {
 				},
 			],
 		});
+		await db.$runCommandRaw({
+			createIndexes: "Product",
+			indexes: [
+				{
+					key: { barcode: 1 },
+					name: "Product_barcode_key",
+					unique: true,
+					partialFilterExpression: {
+						barcode: { $exists: true, $type: "string" },
+					},
+				},
+			],
+		});
 	} catch (e) {
-		console.error("Error in creating supplier index", e);
+		console.error("Error in creating supplier index", e.message);
 	}
 }
 

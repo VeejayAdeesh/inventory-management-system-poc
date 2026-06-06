@@ -6,6 +6,10 @@ import "dotenv/config";
 import shopRounter from "@/routes/shop.js";
 import supplierRounter from "./routes/supplier.js";
 import loginRouter from "./routes/login.js";
+import unitsRouter from "./routes/unit.js";
+import categoryRouter from "./routes/category.js";
+import brandRouter from "./routes/brand.js";
+import productRouter from "./routes/product.js";
 
 const app = express();
 
@@ -24,3 +28,7 @@ app.use("/api/v1", userRouter);
 app.use("/api/v1", shopRounter);
 app.use("/api/v1", supplierRounter);
 app.use("/api/v1", loginRouter);
+app.use("/api/v1", unitsRouter);
+app.use("/api/v1", categoryRouter);
+app.use("/api/v1", brandRouter);
+app.use("/api/v1", productRouter);

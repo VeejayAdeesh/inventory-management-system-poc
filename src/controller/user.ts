@@ -158,7 +158,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 		if (userData) {
 			await db.user.delete({
 				where: {
-					id,
+					id: id as string
 				},
 			});
 			return res.status(200).json({
@@ -187,12 +187,12 @@ export const updateUserPassword = async (req: Request, res: Response) => {
 	const { id } = req.params;
 	const { password } = req.body;
 	try {
-		const { userData } = await checkExistingUser(id);
+		const { userData } = await checkExistingUser(id as string);
 		if (userData) {
 			const hashedPassowrd: string = await bcrypt.hash(password, 10);
 			await db.user.update({
 				where: {
-					id,
+					id: id as string,
 				},
 				data: {
 					password: hashedPassowrd,
