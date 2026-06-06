@@ -24,9 +24,7 @@ export const createProduct = async (req: Request, res: Response) => {
 		categoryId,
 		expiryDate,
 	} = req.body;
-	console.log(productCode);
 	try {
-		console.log(productCode);
 		const result = await db.product.create({
 			data: {
 				name,
@@ -51,11 +49,9 @@ export const createProduct = async (req: Request, res: Response) => {
 		});
 		return res.status(NetworkStatusCode.Ok).json({ data: result, error: null });
 	} catch (e) {
-		console.log(productCode);
 		if (e instanceof Prisma.PrismaClientKnownRequestError) {
 			if (e.code === PrismaErrorCode.UniqueContraintFailed) {
 				const fields = e.meta?.target as string;
-				console.log("f", fields);
 				if (fields.includes("slug")) {
 					console.error(`Unique key constraint. ${slug} already exit`, e.meta);
 					return res
@@ -78,7 +74,6 @@ export const createProduct = async (req: Request, res: Response) => {
 						.json({ data: null, error: `${productCode} alreay exist` });
 				}
 				if (fields.includes("barcode")) {
-					console.log("tttt", barcode);
 					console.error(
 						`Unique key constraint. ${barcode} already exit`,
 						e.meta,

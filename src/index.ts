@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import customerRouter from "@/routes/customer.js";
 import userRouter from "@/routes/user.js";
 import cors from "cors";
@@ -21,6 +21,10 @@ const port = process.env.PORT || 8081;
 
 app.listen(port, () => {
 	console.log("App is running in the port ", port);
+});
+
+app.get("/", async (req: Request, res: Response) => {
+	return res.status(200).send("IMPOS Backend Services");
 });
 
 app.use("/api/v1", customerRouter);
