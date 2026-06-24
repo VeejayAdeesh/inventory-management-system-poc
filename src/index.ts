@@ -10,6 +10,7 @@ import unitsRouter from "./routes/unit.js";
 import categoryRouter from "./routes/category.js";
 import brandRouter from "./routes/brand.js";
 import productRouter from "./routes/product.js";
+import saleRouter from "./routes/sales.js";
 
 const app = express();
 
@@ -36,3 +37,4 @@ app.use("/api/v1", unitsRouter);
 app.use("/api/v1", categoryRouter);
 app.use("/api/v1", brandRouter);
 app.use("/api/v1", productRouter);
+app.use("/api/v1", saleRouter);

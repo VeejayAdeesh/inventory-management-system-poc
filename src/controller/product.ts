@@ -23,6 +23,8 @@ export const createProduct = async (req: Request, res: Response) => {
 		brandId,
 		categoryId,
 		expiryDate,
+		wholesalePrice,
+		shopId,
 	} = req.body;
 	try {
 		const result = await db.product.create({
@@ -45,6 +47,8 @@ export const createProduct = async (req: Request, res: Response) => {
 				brandId,
 				categoryId,
 				expiryDate,
+				wholesalePrice,
+				shopId,
 			},
 		});
 		return res.status(NetworkStatusCode.Ok).json({ data: result, error: null });
@@ -118,6 +122,8 @@ export const updateProduct = async (req: Request, res: Response) => {
 		brandId,
 		categoryId,
 		expiryDate,
+		wholesalePrice,
+		shopId,
 	} = req.body;
 	try {
 		const result = await db.product.update({
@@ -143,6 +149,8 @@ export const updateProduct = async (req: Request, res: Response) => {
 				brandId,
 				categoryId,
 				expiryDate,
+				wholesalePrice,
+				shopId,
 			},
 		});
 		return res.status(NetworkStatusCode.Ok).json({ data: result, error: null });
