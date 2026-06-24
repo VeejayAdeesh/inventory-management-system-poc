@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db.js";
 import {
+	generateEmailTemplate,
 	generateSecureRandomToken,
 	generatJwtToken,
 } from "@/utils/loginUtils.js";
 import bcrypt from "bcrypt";
 import { NetworkStatusCode } from "@/utils/errorCode.js";
 import { addMinutes } from "date-fns";
+import { transporter } from "@/config/emailConfig.js";
 
 export const loginUser = async (req: Request, res: Response) => {
 	try {
@@ -68,6 +70,13 @@ export const generateResetToken = async (req: Request, res: Response) => {
 		await db.user.update({
 			where: { id: user.id, email },
 			data: { resetToken, resetTokenExpiry },
+		});
+		const emailTemplate = generateEmailTemplate(resetToken);
+		await transporter.sendMail({
+			from: "no-reply@impos.com",
+			to: email,
+			subject: "IMPOS - One Time Reset Token",
+			html: emailTemplate,
 		});
 		return res.status(NetworkStatusCode.Created).json({
 			data: { resetToken, resetTokenExpiry, userId: user.id },
