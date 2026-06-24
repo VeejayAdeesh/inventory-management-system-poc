@@ -50,6 +50,8 @@ model User {
   email String @unique
   phone String @unique
   dob DateTime?
+  resetToken Int?
+  resetTokenExpiry DateTime?
   role Role @default(ATTENDANT)
   gender Gender
   createdAt DateTime @default(now())
