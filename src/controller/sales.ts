@@ -7,6 +7,11 @@ import {
 	generateSaleNumber,
 	isCreditEligibility,
 } from "@/utils/salesUtils.js";
+import { startOfDay, startOfMonth, startOfYear } from "date-fns/fp";
+import {
+	generateSalesDataQueryAllShops,
+	generateSalesDataQueryForShop,
+} from "@/query/salesAnalysisQuery.js";
 
 export const createSales = async (req: Request, res: Response) => {
 	const {
@@ -187,5 +192,63 @@ export const getSales = async (req: Request, res: Response) => {
 		return res
 			.status(NetworkStatusCode.InternalServerError)
 			.json({ data: null, error: "Internal server error" });
+	}
+};
+
+export const getSalesForAllShops = async (req: Request, res: Response) => {
+	try {
+		const todayDate = startOfDay(Date.now());
+		const monthDate = startOfMonth(Date.now());
+		const yearDate = startOfYear(Date.now());
+		const salesQuery = generateSalesDataQueryAllShops(
+			todayDate,
+			monthDate,
+			yearDate,
+		);
+		const salesData = await db.sale.aggregateRaw({
+			pipeline: salesQuery,
+		});
+		return res
+			.status(NetworkStatusCode.Ok)
+			.json({ data: salesData, error: null });
+	} catch (e) {
+		if (e instanceof Error) {
+			console.error("Error in getting sales data for all shops", e.message);
+		} else {
+			console.error("Unknown error", e);
+		}
+		return res
+			.status(NetworkStatusCode.InternalServerError)
+			.json({ data: null, error: "Internal Server error" });
+	}
+};
+
+export const getSalesForShop = async (req: Request, res: Response) => {
+	try {
+		const { shopId } = req.query;
+		const todayDate = startOfDay(Date.now());
+		const monthDate = startOfMonth(Date.now());
+		const yearDate = startOfYear(Date.now());
+		const salesQuery = generateSalesDataQueryForShop(
+			todayDate,
+			monthDate,
+			yearDate,
+			shopId as string,
+		);
+		const salesData = await db.sale.aggregateRaw({
+			pipeline: salesQuery,
+		});
+		return res
+			.status(NetworkStatusCode.Ok)
+			.json({ data: salesData, error: null });
+	} catch (e) {
+		if (e instanceof Error) {
+			console.error("Error in getting sales data for all shops", e.message);
+		} else {
+			console.error("Unknown error", e);
+		}
+		return res
+			.status(NetworkStatusCode.InternalServerError)
+			.json({ data: null, error: "Internal Server error" });
 	}
 };
