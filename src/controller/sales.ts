@@ -2,15 +2,19 @@ import { Request, Response } from "express";
 import { db } from "@/db/db.js";
 import { SalesItem, SalesRequest } from "@/types/types.js";
 import { NetworkStatusCode } from "@/utils/errorCode.js";
-import { generateSaleNumber } from "@/utils/salesUtils.js";
+import {
+	calculatePurchaseBalance,
+	generateSaleNumber,
+	isCreditEligibility,
+} from "@/utils/salesUtils.js";
 
 export const createSales = async (req: Request, res: Response) => {
 	const {
 		customerId,
+		shopId,
 		customerName,
 		customerEmail,
 		saleAmount,
-		balanceAmount,
 		paidAmount,
 		paymentType,
 		paymentMethod,
@@ -19,9 +23,30 @@ export const createSales = async (req: Request, res: Response) => {
 	}: SalesRequest = req.body;
 	try {
 		const sales = await db.$transaction(async (transaction) => {
+			const customerData = await transaction.customer.findFirst({
+				where: {
+					id: customerId,
+				},
+				select: { maxCreditLimit: true, unpaidCreditAmount: true },
+			});
+			if (!customerData) {
+				throw new Error("CUSTOMER_NOT_FOUND");
+			}
+			const balanceAmount = calculatePurchaseBalance(saleAmount, paidAmount);
+			if (
+				balanceAmount > 0 &&
+				!isCreditEligibility(
+					customerData?.maxCreditLimit || 0,
+					customerData?.unpaidCreditAmount || 0,
+					balanceAmount,
+				)
+			) {
+				throw new Error("CREDIT_NOT_ELIGIBLE");
+			}
 			const salesResult = await transaction.sale.create({
 				data: {
 					customerId,
+					shopId,
 					customerName,
 					saleNumber: generateSaleNumber(),
 					customerEmail,
@@ -52,7 +77,7 @@ export const createSales = async (req: Request, res: Response) => {
 				});
 			}
 			for (const item of salesItems as SalesItem[]) {
-				const itemQty = await transaction.product.findUnique({
+				const productData = await transaction.product.findUnique({
 					where: {
 						id: item.productId as string,
 					},
@@ -60,9 +85,12 @@ export const createSales = async (req: Request, res: Response) => {
 						stockQty: true,
 					},
 				});
-				if (itemQty?.stockQty && itemQty.stockQty < item.qty) {
+				if (!productData) {
+					throw new Error("PRODUCT_NOT_FOUND");
+				}
+				if (productData?.stockQty && productData.stockQty < item.qty) {
 					console.error(
-						`Product: ${item.productId} Reuested Qty: ${item.qty} Available Qty: ${itemQty.stockQty}`,
+						`Product: ${item.productId} Reuested Qty: ${item.qty} Available Qty: ${productData.stockQty}`,
 					);
 					throw new Error("INSUFFICIENT_QTY");
 				}
@@ -91,17 +119,38 @@ export const createSales = async (req: Request, res: Response) => {
 		return res.status(201).json({ data: sales, error: null });
 	} catch (e) {
 		if (e instanceof Error) {
-			if (e.message === "INSUFFICIENT_QTY") {
-				return res.status(NetworkStatusCode.UnprocessableEntiry).json({
-					data: null,
-					error: "Requested quantity exceeds available inventory",
-				});
-			}
 			console.error("Error in processing create sales request", e.message);
-			return res.status(NetworkStatusCode.InternalServerError).json({
-				data: null,
-				error: "Internal server error. Unable to process sales request",
-			});
+			switch (e.message) {
+				case "PRODUCT_NOT_FOUND":
+					return res.status(NetworkStatusCode.NotFound).json({
+						data: null,
+						error: "Product not found",
+					});
+
+				case "CUSTOMER_NOT_FOUND":
+					return res.status(NetworkStatusCode.NotFound).json({
+						data: null,
+						error: "Customer Detail not found",
+					});
+
+				case "CREDIT_NOT_ELIGIBLE":
+					return res.status(NetworkStatusCode.BadRequest).json({
+						data: null,
+						error: "Customer not eligible for credit",
+					});
+
+				case "INSUFFICIENT_QTY":
+					return res.status(NetworkStatusCode.UnprocessableEntiry).json({
+						data: null,
+						error: "Requested quantity exceeds available inventory",
+					});
+
+				default:
+					return res.status(NetworkStatusCode.InternalServerError).json({
+						data: null,
+						error: "Internal server error. Unable to process sales request",
+					});
+			}
 		}
 		console.error("Error in processing create sales request", e);
 		return res.status(NetworkStatusCode.InternalServerError).json({

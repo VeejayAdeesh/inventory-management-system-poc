@@ -2,10 +2,10 @@ import { PaymentMethod, PaymentType } from "@/generated/enums.js";
 
 export interface SalesRequest {
 	customerId: string;
+	shopId: string;
 	customerName: string;
 	customerEmail: string;
 	saleAmount: number;
-	balanceAmount: number;
 	paidAmount: number;
 	paymentType: PaymentType;
 	paymentMethod: PaymentMethod;

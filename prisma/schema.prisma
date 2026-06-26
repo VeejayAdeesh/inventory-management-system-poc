@@ -81,6 +81,7 @@ model Shop {
   adminId String @db.ObjectId
   admin User @relation(fields:[adminId], references:[id])
   attendantIds String[] @db.ObjectId
+  sales Sale[]
 }
 
 model Supplier {
@@ -177,6 +178,7 @@ model Product {
 model Sale {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   customerId String @db.ObjectId
+  shopId String @db.ObjectId
   customerName String
   saleNumber String @unique
   customerEmail String?
@@ -190,6 +192,7 @@ model Sale {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   customer Customer @relation(fields:[customerId], references:[id])
+  shop Shop @relation(fields:[shopId], references:[id])
 }
 
 enum PaymentType {
