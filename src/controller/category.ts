@@ -123,11 +123,11 @@ export const getCategoryLists = async (req: Request, res: Response) => {
 				createdAt: "desc",
 			},
 		});
-		if (!results || results.length) {
+		if (!results || !results.length) {
 			console.error("Category not found");
 			return res
 				.status(NetworkStatusCode.NotFound)
-				.json({ data: results, error: null });
+				.json({ data: null, error: "Category not found" });
 		}
 		return res
 			.status(NetworkStatusCode.Ok)
@@ -171,11 +171,11 @@ export const deleteCategoryById = async (req: Request, res: Response) => {
 			console.error(`Error in deleting category data: ${id}`, e.message);
 			return res
 				.status(NetworkStatusCode.InternalServerError)
-				.json({ data: null, error: "Internal Server error" });
+				.json({ success: null, error: "Internal Server error" });
 		}
 		console.error(`Unknown error occurred deleting category data: ${id}`, e);
 		return res
 			.status(NetworkStatusCode.InternalServerError)
-			.json({ data: null, error: "Internal Server error" });
+			.json({ success: null, error: "Internal Server error" });
 	}
 };

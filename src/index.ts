@@ -11,6 +11,9 @@ import categoryRouter from "./routes/category.js";
 import brandRouter from "./routes/brand.js";
 import productRouter from "./routes/product.js";
 import saleRouter from "./routes/sales.js";
+import payeeRouter from "./routes/payee.js";
+import expenseCategoryRouter from "./routes/expenseCategory.js";
+import expenseRouter from "./routes/expenses.js";
 
 const app = express();
 
@@ -38,3 +41,6 @@ app.use("/api/v1", categoryRouter);
 app.use("/api/v1", brandRouter);
 app.use("/api/v1", productRouter);
 app.use("/api/v1", saleRouter);
+app.use("/api/v1", payeeRouter);
+app.use("/api/v1", expenseCategoryRouter);
+app.use("/api/v1", expenseRouter);
