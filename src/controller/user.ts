@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { db } from "@/db/db.js";
 import bcrypt from "bcrypt";
-import { error } from "node:console";
+import { NetworkStatusCode } from "@/utils/errorCode.js";
 
 const checkExistingUser = async (userId: string) => {
 	try {
@@ -158,7 +158,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 		if (userData) {
 			await db.user.delete({
 				where: {
-					id: id as string
+					id: id as string,
 				},
 			});
 			return res.status(200).json({
@@ -185,11 +185,27 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const updateUserPassword = async (req: Request, res: Response) => {
 	const { id } = req.params;
-	const { password } = req.body;
+	const { oldPassword, newPassword } = req.body;
 	try {
 		const { userData } = await checkExistingUser(id as string);
+		if (!userData) {
+			console.error(`User not found: ${id}`);
+			return res
+				.status(NetworkStatusCode.NotFound)
+				.json({ success: false, error: "User not found" });
+		}
+		const oldPasswordMatch = await bcrypt.compare(
+			oldPassword,
+			userData.password,
+		);
+		if (!oldPasswordMatch) {
+			console.log(`Old password does not match:${id}`);
+			return res
+				.status(NetworkStatusCode.BadRequest)
+				.json({ success: false, error: "Old password does not match" });
+		}
 		if (userData) {
-			const hashedPassowrd: string = await bcrypt.hash(password, 10);
+			const hashedPassowrd: string = await bcrypt.hash(newPassword, 10);
 			await db.user.update({
 				where: {
 					id: id as string,

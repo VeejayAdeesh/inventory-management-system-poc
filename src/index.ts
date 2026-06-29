@@ -1,8 +1,12 @@
+import "dotenv/config";
 import express, { Request, Response } from "express";
+import {
+	strictRateLimiter,
+	linientRateLimiter,
+} from "@/middleware/ratelimiter.js";
 import customerRouter from "@/routes/customer.js";
 import userRouter from "@/routes/user.js";
 import cors from "cors";
-import "dotenv/config";
 import shopRounter from "@/routes/shop.js";
 import supplierRounter from "./routes/supplier.js";
 import loginRouter from "./routes/login.js";
@@ -30,6 +34,15 @@ app.listen(port, () => {
 app.get("/", async (req: Request, res: Response) => {
 	return res.status(200).send("IMPOS Backend Services");
 });
+
+/* --- STRICT RATE LIMIER --- */
+app.use("/api/v1/login", strictRateLimiter);
+app.use("/api/v1/sales", strictRateLimiter);
+app.use("/api/v1/expenses", strictRateLimiter);
+
+/* --- LINENT RATE LIMITER --- */
+app.use("/api/v1/products", linientRateLimiter);
+app.use("/api/v1/customers", linientRateLimiter);
 
 app.use("/api/v1", customerRouter);
 app.use("/api/v1", userRouter);
