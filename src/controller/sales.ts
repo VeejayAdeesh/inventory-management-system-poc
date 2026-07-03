@@ -12,6 +12,7 @@ import {
 	generateSalesDataQueryAllShops,
 	generateSalesDataQueryForShop,
 } from "@/query/salesAnalysisQuery.js";
+import { sendProductStockForPurchaseNotification } from "@/services/productService.js";
 
 export const createSales = async (req: Request, res: Response) => {
 	const {
@@ -118,7 +119,8 @@ export const createSales = async (req: Request, res: Response) => {
 					},
 				});
 			}
-
+			const productIds = salesItems.map((v) => v.productId);
+			sendProductStockForPurchaseNotification(productIds);
 			return salesResult;
 		});
 		return res.status(201).json({ data: sales, error: null });

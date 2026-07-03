@@ -104,6 +104,7 @@ model Supplier {
   rating Float?
   notes String?
   products Product[]
+  purchaseOrder PurchaseOrder[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -172,6 +173,8 @@ model Product {
   supplier Supplier @relation(fields:[supplierId], references:[id])
   shop Shop @relation(fields:[shopId], references:[id])
   salesItems SaleItem[]
+  adjustmentItem AdjustmentItem[]
+  purchaseOrderItem PurchaseOrderItem[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -251,4 +254,86 @@ model Expenses {
   shop Shop @relation(fields:[shopId], references:[id])
   expenseCategory ExpenseCategory @relation(fields:[expenseCategoryId], references:[id])
   payee Payee @relation(fields:[payeeId], references:[id])
+}
+
+// Notification model
+model Notification {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  message String
+  messageHeader String
+  status NotificationStatus @default(INFO)
+  read Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum NotificationStatus {
+    WARNING
+    INFO
+    DANGER
+}
+
+model AdjustmentItem {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  adjustmentId String @db.ObjectId
+  productId String @db.ObjectId
+  quantity Int
+  type String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product Product @relation(fields:[productId], references:[id])
+  adjustment Adjustment @relation(fields:[adjustmentId], references:[id])
+}
+
+model Adjustment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  refNo String @unique @default("AAAAA")
+  reason String
+  adjustmentItems AdjustmentItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PurchaseOrder {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  supplierId String @db.ObjectId
+  paymentStatus PurchaseOrderPaymentStatus @default(PAID)
+  purchaseOrderStatus PurchaseOrderStatus @default(ORDERED)
+  discount Int?
+  notes String?
+  tax Int?
+  refNo String
+  totalAmount Int
+  balanceAmount Int
+  shippingCost Int
+  purchaseOrderItems PurchaseOrderItem[]
+  supplier Supplier @relation(fields:[supplierId], references:[id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PurchaseOrderItem {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  purchaseOrderId String @db.ObjectId
+  productId String @db.ObjectId
+  orderQty Int
+  unitCost Int
+  subTotal Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  purchaseOrder PurchaseOrder @relation(fields:[purchaseOrderId], references:[id])
+  product Product @relation(fields:[productId], references:[id])
+}
+
+enum PurchaseOrderPaymentStatus {
+  PAID
+  PARTIAL
+  UNPAID
+}
+
+enum PurchaseOrderStatus {
+  ORDERED
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
