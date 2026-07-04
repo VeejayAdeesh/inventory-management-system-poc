@@ -52,6 +52,7 @@ export const updateProductStockQtyFromPO = async (
 						},
 					},
 				});
+				console.log("Updated product ", item.productId, item.orderQty);
 			} catch (e) {
 				if (e instanceof Prisma.PrismaClientKnownRequestError) {
 					console.error("Error in updating product stock qty", e.cause);

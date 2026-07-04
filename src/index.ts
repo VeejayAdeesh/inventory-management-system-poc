@@ -18,6 +18,9 @@ import saleRouter from "./routes/sales.js";
 import payeeRouter from "./routes/payee.js";
 import expenseCategoryRouter from "./routes/expenseCategory.js";
 import expenseRouter from "./routes/expenses.js";
+import notificationRouter from "./routes/notification.js";
+import purchaseOrderRouter from "./routes/purcahaseOrder.js";
+import adjustmentRouter from "./routes/adjustment.js";
 
 const app = express();
 
@@ -57,3 +60,6 @@ app.use("/api/v1", saleRouter);
 app.use("/api/v1", payeeRouter);
 app.use("/api/v1", expenseCategoryRouter);
 app.use("/api/v1", expenseRouter);
+app.use("/api/v1", notificationRouter);
+app.use("/api/v1", purchaseOrderRouter);
+app.use("/api/v1", adjustmentRouter);

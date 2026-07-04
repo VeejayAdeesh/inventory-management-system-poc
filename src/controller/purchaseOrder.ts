@@ -99,7 +99,7 @@ export const updatePurchaseOrderById = async (req: Request, res: Response) => {
 				shippingCost,
 			},
 		});
-		updateProductStockQtyFromPO(purchaseOrderDetail, paymentStatus);
+		updateProductStockQtyFromPO(purchaseOrderDetail, purchaseOrderStatus);
 		return res
 			.status(NetworkStatusCode.Ok)
 			.json({ data: updatedPurchaseOrder, error: null });
@@ -156,6 +156,9 @@ export const getPurchaseOrderById = async (req: Request, res: Response) => {
 		const purchaseOrders = await db.purchaseOrder.findUnique({
 			where: {
 				id: id as string,
+			},
+			include: {
+				purchaseOrderItems: true,
 			},
 		});
 		if (!purchaseOrders) {

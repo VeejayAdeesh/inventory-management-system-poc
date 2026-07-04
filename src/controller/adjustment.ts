@@ -39,6 +39,8 @@ export const createAdjustment = async (req: Request, res: Response) => {
 						throw new Error("INSUFFICIENT_QTY");
 					}
 					adjustStockQty.decrement = item.quantity;
+				} else {
+					throw new Error("UNKOWN_ADJUSTMENT_TYPE");
 				}
 				// 3. update Stock quantity in product
 				await transaction.product.update({
@@ -79,6 +81,10 @@ export const createAdjustment = async (req: Request, res: Response) => {
 		if (e instanceof Error) {
 			console.error("Error in creating product adjustment ", e.message);
 			switch (e.message) {
+				case "UNKOWN_ADJUSTMENT_TYPE":
+					return res
+						.status(NetworkStatusCode.BadRequest)
+						.json({ data: null, error: "Unknown adjustment type" });
 				case "PRODUCT_NOT_FOUND":
 					return res
 						.status(NetworkStatusCode.NotFound)
